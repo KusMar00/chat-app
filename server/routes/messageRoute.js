@@ -22,4 +22,14 @@ router.post("/", async (request, response) => {
   }
 });
 
+router.get("/", async (request, response) => {
+  try {
+    const messages = await Message.find({}).limit(10);
+    return response.status(200).json({ data: messages });
+  } catch (error) {
+    console.log(error);
+    response.status(500).send({ message: error.message });
+  }
+});
+
 export default router;
