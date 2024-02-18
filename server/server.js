@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 import messageRoute from "./routes/messageRoute.js";
+import { Server } from "socket.io";
 
 const app = express();
 
@@ -14,12 +15,32 @@ app.use(express.json());
 app.use("/messages", messageRoute);
 
 // get driver connection
-app.listen(port, async () => {
+const expressServer = app.listen(port, async () => {
   // perform a database connection when server starts
   await connectToDb();
   console.log(`Server is running on port: ${port}`);
 });
 
+// Start websocket
+const io = new Server(expressServer, {
+  cors: {
+    origin:
+      process.env.NODE_ENV === "production"
+        ? false
+        : ["http://localhost:5173", "http://87.52.110.172:5173"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User ${socket.id} connected`);
+
+  socket.on("message", (data) => {
+    console.log(data);
+    io.emit("message", `${socket.id.substring(0, 5)}: ${data}`);
+  });
+});
+
+// Connect to Database
 const Db = process.env.ATLAS_URI;
 const connectToDb = async () => {
   mongoose
