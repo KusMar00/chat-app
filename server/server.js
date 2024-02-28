@@ -34,9 +34,9 @@ const io = new Server(expressServer, {
 io.on("connection", (socket) => {
   console.log(`User ${socket.id} connected`);
 
-  socket.on("message", (data) => {
+  socket.on("send_message", (data) => {
     console.log(data);
-    io.emit("message", `${socket.id.substring(0, 5)}: ${data}`);
+    socket.broadcast.emit("receive_message", data);
   });
 });
 

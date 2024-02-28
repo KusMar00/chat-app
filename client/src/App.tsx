@@ -1,35 +1,32 @@
-import { io } from "socket.io-client";
-import { useState, useEffect } from "react";
+import io from "socket.io-client";
+import { useState, useEffect, FormEvent } from "react";
+
+const URL = "http://localhost:5000";
+const socket = io(URL);
 
 function App() {
-  const URL = "http://localhost:5000";
-  const socket = io(URL);
-
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const [formValue, setFormValue] = useState("");
 
   useEffect(() => {
-    function onConnect() {
-      setIsConnected(true);
-    }
+    socket.on("receive_message", (data) => {
+      console.log(data.message);
+    });
+  }, [socket]);
 
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-
-    socket.timeout(5000).emit("create-something", "Hello, Wolrd");
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, []);
-
+  const sendMessage = (e: FormEvent) => {
+    e.preventDefault();
+    socket.emit("send_message", { message: formValue });
+  };
   return (
     <div>
-      <button>Send</button>
+      <form onSubmit={sendMessage}>
+        <input
+          type="text"
+          placeholder="Your Message"
+          onChange={(e) => setFormValue(e.target.value)}
+        />
+        <input type="submit" value={"Send"} />
+      </form>
     </div>
   );
 }
