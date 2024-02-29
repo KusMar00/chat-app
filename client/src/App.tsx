@@ -1,11 +1,15 @@
 import io from "socket.io-client";
-import { useState, useEffect, FormEvent } from "react";
+import { useEffect } from "react";
+import MessageForm from "./components/MessageForm";
+import LoginButton from "./components/LoginButton";
+import LogoutButton from "./components/LogoutButton";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const URL = "http://localhost:5000";
 const socket = io(URL);
 
 function App() {
-  const [formValue, setFormValue] = useState("");
+  const { user, isAuthenticated } = useAuth0();
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
@@ -13,20 +17,17 @@ function App() {
     });
   }, [socket]);
 
-  const sendMessage = (e: FormEvent) => {
-    e.preventDefault();
-    socket.emit("send_message", { message: formValue });
-  };
   return (
-    <div>
-      <form onSubmit={sendMessage}>
-        <input
-          type="text"
-          placeholder="Your Message"
-          onChange={(e) => setFormValue(e.target.value)}
-        />
-        <input type="submit" value={"Send"} />
-      </form>
+    <div className="flex flex-row items-center justify-between w-full">
+      {!isAuthenticated ? (
+        <LoginButton />
+      ) : (
+        <>
+          <LogoutButton />
+          <MessageForm socket={socket} />
+          <p>User: {user?.name}</p>
+        </>
+      )}
     </div>
   );
 }
