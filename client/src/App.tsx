@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import MessageForm from "./components/MessageForm";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
+import ChatWindow from "./components/ChatWindow";
 import { useAuth0 } from "@auth0/auth0-react";
 
 const URL = "http://localhost:5000";
@@ -18,15 +19,16 @@ function App() {
   }, [socket]);
 
   return (
-    <div className="flex flex-row items-center justify-between w-full">
+    <div>
       {!isAuthenticated ? (
         <LoginButton />
       ) : (
-        <>
+        <div className="flex flex-col justify-around items-center w-full h-[100vh] bg-gray-900">
           <LogoutButton />
+          <ChatWindow />
           <MessageForm socket={socket} />
           <p>User: {user?.name}</p>
-        </>
+        </div>
       )}
     </div>
   );
