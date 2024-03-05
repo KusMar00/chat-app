@@ -23,7 +23,7 @@ const MessageForm = ({ socket }: { socket: Socket }) => {
         value={formValue}
       />
       <input
-        className="p-2 bg-blue-600 rounded-3xl font-poppins text-white w-[10%] cursor-pointer active:bg-blue-700 border-2 border border-blue-600 hover:border-blue-800"
+        className="p-2 bg-blue-600 rounded-3xl font-poppins text-white w-[10%] cursor-pointer active:bg-blue-700 border-2 border border-blue-600 hover:border-blue-800 md:relative hidden"
         type="submit"
         value={"Send"}
       />

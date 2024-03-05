@@ -1,33 +1,35 @@
-import io from "socket.io-client";
-import { useEffect } from "react";
 import MessageForm from "./components/MessageForm";
 import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
 import ChatWindow from "./components/ChatWindow";
 import { useAuth0 } from "@auth0/auth0-react";
-
-const URL = "http://localhost:5000";
-const socket = io(URL);
+import socket from "./lib/socket";
+import { useEffect } from "react";
 
 function App() {
-  const { user, isAuthenticated } = useAuth0();
+  const { isAuthenticated, getIdTokenClaims } = useAuth0();
 
   useEffect(() => {
-    socket.on("receive_message", (data) => {
-      console.log(data.message);
-    });
-  }, [socket]);
+    if (isAuthenticated) {
+      let id = undefined;
+      getIdTokenClaims().then((claims) => {
+        id = claims?.aud;
+        console.log(id);
+        socket.auth = getIdTokenClaims();
+        socket.connect();
+      });
+    }
+  }, [isAuthenticated]);
 
   return (
-    <div>
+    <div className="w-full h-[100vh] bg-gray-800 flex items-center justify-center">
       {!isAuthenticated ? (
         <LoginButton />
       ) : (
-        <div className="flex flex-col justify-around items-center w-full h-[100vh] bg-gray-900">
+        <div className="flex flex-col justify-around items-center w-full h-full">
           <LogoutButton />
-          <ChatWindow />
+          <ChatWindow socket={socket} />
           <MessageForm socket={socket} />
-          <p>User: {user?.name}</p>
         </div>
       )}
     </div>
